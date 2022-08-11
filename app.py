@@ -1,7 +1,8 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 import os
+import sys
 
 load_dotenv()
 app = Flask(__name__)
@@ -20,6 +21,24 @@ db.create_all()
 def index():
     return render_template('index.html', data=Todo.query.all())
 
+@app.route('/todos/create', methods=['POST'])
+def create_todo():
+    error = False
+    body = {}
+    try:
+        description = request.get_json()['description']
+        todo = Todo(description=description)
+        db.session.add(todo)
+        db.session.commit()
+        body['description'] = todo.description
+    except:
+        error = True
+        db.session.rollback()
+        print(sys.exc_info())
+    finally:
+        db.session.close()
+    if not error:
+        return jsonify(body)
 
 if __name__ == '__main__':
     app.debug = True
