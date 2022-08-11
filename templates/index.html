@@ -6,8 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Todo App</title>
     <style>
+        * {
+            /* margin: 0;
+            padding: 0; */
+            /* box-sizing: border-box; */
+        }
         .hidden {
             display: none;
+        }
+        ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
         }
     </style>
 </head>
@@ -19,7 +29,7 @@
     <div class="hidden" id="err">Something went wrong</div>
     <ul id="todos">
         {% for d in data %}
-        <li>{{ d.description }}</li>
+        <li><input data-id='{{ d.id }}' class="check-completed" type="checkbox" {% if d.completed %} checked {% endif %} /> {{ d.description }}</li>
         {% endfor %}
     </ul>
 
@@ -28,6 +38,27 @@
         const description = document.getElementById('todo');
         const todos = document.getElementById('todos');
         const err = document.getElementById('err');
+        const checkedList = document.querySelectorAll('.check-completed');
+
+        for(let i = 0; i < checkedList.length; i++) {
+            const item = checkedList[i];
+
+            item.addEventListener('change', async (e) => {
+                const newCompleted = e.target.checked;
+                console.log(e)
+                const itemId = e.target.dataset.id;
+                console.log("itemId", itemId)
+                const response = await fetch(`/todos/${itemId}/set-completed`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        completed: newCompleted
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+            })
+        }
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault()
@@ -42,9 +73,11 @@
                     }
                 });
                 const todo = await response.json();
-                // console.log("data", todo);
                 const listItem = document.createElement('Li');
-                listItem.innerText = todo.description;
+                const input = document.createElement('input');
+                input.setAttribute('type', 'checkbox');
+                listItem.append(input)
+                listItem.append(todo.description)
                 todos.append(listItem);
                 err.className = 'hidden'
                 e.target.reset()
