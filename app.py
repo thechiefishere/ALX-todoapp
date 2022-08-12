@@ -13,11 +13,18 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://jbabajohn:{db_password}@l
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+class Todolist(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(), nullable=False)
+    
+    todos = db.relationship('Todo', backref='todolist')
 
 class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     description = db.Column(db.String(200), nullable=False)
     completed = db.Column(db.Boolean, nullable=False, default=False)
+    todolist_id = db.Column(db.Integer, db.ForeignKey('todolist.id'), nullable=False)
+    
 
 @app.route('/')
 def index():
