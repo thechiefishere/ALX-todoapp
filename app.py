@@ -10,6 +10,7 @@ load_dotenv()
 app = Flask(__name__)
 db_password = os.getenv('MY_PASSWORD')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://jbabajohn:{db_password}@localhost:5432/todoapp'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
@@ -28,7 +29,30 @@ class Todo(db.Model):
 
 @app.route('/')
 def index():
-    return render_template('index.html', data=Todo.query.order_by('id').all())
+    return redirect(url_for('get_list_todos', list_id=1))
+
+@app.route('/lists/<list_id>')
+def get_list_todos(list_id):
+    return render_template('index.html', todos=Todo.query.filter_by(todolist_id=list_id).order_by('id').all(), lists=Todolist.query.all(), active_list=Todolist.query.get(list_id))
+    
+    
+@app.route('/lists/create', methods=['POST'])
+def create_list():
+    error = False
+    response = {}
+    try:
+        list_name = request.get_json()['new_list']
+        new_list_item = Todolist(name=list_name)
+        db.session.add(new_list_item)
+        db.session.commit()
+        response['name'] = new_list_item.name
+    except:
+        db.session.rollback()
+        error = True
+    finally:
+        db.session.close()
+    if not error:
+        return jsonify(response)
 
 @app.route('/todos/create', methods=['POST'])
 def create_todo():
@@ -65,6 +89,7 @@ def set_completed(todo_id):
 @app.route('/todos/<todo_id>/delete-todo', methods=['GET'])
 def delete_todo(todo_id):
     try:
+        print('am in try')
         todo = Todo.query.get(todo_id)
         db.session.delete(todo)
         db.session.commit()

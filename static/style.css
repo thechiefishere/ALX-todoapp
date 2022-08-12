@@ -1,0 +1,44 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+    padding: 10%;
+    background-color: rgb(207, 247, 245);
+}
+h1 {
+    margin-bottom: 30px;
+}
+section {
+ display: flex;
+ align-items: flex-start;
+}
+form {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+aside {
+    margin-right: 30px;
+}
+.hidden {
+    display: none;
+}
+ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 200px;
+    margin-left: 20px;
+}
+li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 7px 2px;
+}
+.cancel-btn {
+    color: red;
+}

@@ -5,113 +5,52 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Todo App</title>
-    <style>
-        * {
-            /* margin: 0;
-            padding: 0; */
-            /* box-sizing: border-box; */
-        }
-        .hidden {
-            display: none;
-        }
-        ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            width: 200px;
-        }
-        button {
-            /* margin-left: 50px; */
-            border: none;
-            outline: none;
-            color: red;
-            float: right;
-        }
-    </style>
+    <link rel="stylesheet" href='{{ url_for("static", filename="style.css") }}'>
+    <script src='{{ url_for("static", filename="script.js") }}' defer></script>
 </head>
 <body>
-    <form id="form">
-        <input type="text" name="description" id="todo">
-        <input type="submit" value="Create" />
-    </form>
-    <div class="hidden" id="err">Something went wrong</div>
-    <ul id="todos">
-        {% for d in data %}
-        <li><input data-id='{{ d.id }}' class="check-completed" type="checkbox" {% if d.completed %} checked {% endif %} /> {{ d.description }}
-            <button class="cancel-btn" data-id="{{ d.id }}">&cross;</button>    
-        </li>
-        {% endfor %}
-    </ul>
-
-    <script>
-        const form = document.getElementById('form');
-        const description = document.getElementById('todo');
-        const todos = document.getElementById('todos');
-        const err = document.getElementById('err');
-        const checkedList = document.querySelectorAll('.check-completed');
-        const cancelBtns = document.querySelectorAll('.cancel-btn');
-
-        for(let i = 0; i < cancelBtns.length; i++) {
-            const btn = cancelBtns[i];
-            btn.addEventListener('click', async (e) => {
-                try {
-                    const todoId = e.target.dataset.id;
-                    response = await fetch(`/todos/${todoId}/delete-todo`, {
-                        method: 'DELETE'
-                    });
-                } catch(error) {
-                    console.log(error)
-                }
-            })
-        }
-
-        for(let i = 0; i < checkedList.length; i++) {
-            const item = checkedList[i];
-            item.addEventListener('change', async (e) => {
-                try {
-                    const newCompleted = e.target.checked;
-                    const todoId = e.target.dataset.id;
-                    const response = await fetch(`/todos/${todoId}/set-completed`, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        completed: newCompleted
-                    }),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                } catch (error) {
-                    console.log(error)
-                }
-            })
-        }
-
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault()
-            try {
-                const response = await fetch('/todos/create', {
-                    method: 'POST',
-                    body: JSON.stringify(
-                        {description : description.value}
-                    ),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                const todo = await response.json();
-                const listItem = document.createElement('Li');
-                const input = document.createElement('input');
-                input.setAttribute('type', 'checkbox');
-                listItem.append(input)
-                listItem.append(todo.description)
-                todos.append(listItem);
-                err.className = 'hidden'
-                e.target.reset()
-            } catch(error) {
-                console.log(error);
-                err.className = ''
-            }
-        })
-    </script>
+    <h1>A SAMPLE VERSION OF TODO APP</h1>
+    <section>
+        <aside>
+            <h2>TODO LIST</h2>
+            <form id="listForm">
+                <label>Create List:</label>
+                <input type="text" placeholder="A new List" id="listText" />
+                <input type="submit" value="Create List" />
+            </form>
+            <ul id="listUl">
+                {% for list in lists %}
+                    <li>
+                        <div>
+                            <input type='checkbox' />
+                            <a href="/lists/{{ list.id }}"> {{ list.name }}</a>
+                        </div>
+                        <div class="cancel-btn">&cross;</div>    
+                    </li>
+                {% endfor %}
+            </ul>
+        </aside>
+        <main>
+            <h2>TODO ITEMS</h2>
+            <form id="form">
+                <label>Create Task:</label>
+                <input type="text" name="description" id="todo">
+                <input type="submit" value="Create Task" />
+            </form>
+            <h4>{{ active_list.name }}</h4>
+            <div class="hidden" id="err">Something went wrong</div>
+            <ul id="todos">
+                {% for d in todos %}
+                <li>
+                    <div>
+                        <input data-id='{{ d.id }}' class="check-completed" type="checkbox" {% if d.completed %} checked {% endif %} />
+                        <span>{{ d.description }}</span>
+                    </div>
+                    <div class="cancel-btn" data-id="{{ d.id }}">&cross;</div>    
+                </li>
+                {% endfor %}
+            </ul>
+        </main>
+    </section>
 </body>
 </html>
